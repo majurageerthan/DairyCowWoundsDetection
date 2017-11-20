@@ -1,4 +1,4 @@
-package sample;
+package woundsDetection;
 
 public class Controller {
 }
