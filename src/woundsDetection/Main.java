@@ -3,33 +3,48 @@ package woundsDetection;
 import javafx.application.Application;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.CacheHint;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.SplitMenuButton;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelReader;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main extends Application {
     private final double SCREEN_OFFSET=20;
-
+    private final double IMAGE_SPACING=30;
+    private final double EXTRA_SPACE_VERTICAL=260;
+    private final double EXTRA_SPACE_HORIZONTAL=260;
+    private final double TOOLBOX_HEIGHT=100;
+    private final List<Point> points= new ArrayList<>();
+    private double thermalImageHeight=0;
+    private double thermalImageWidth=0;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
         BorderPane root =  (BorderPane) FXMLLoader.load(getClass().getResource("gui.fxml"));
-        primaryStage.setTitle("Automatic Wounds Detection");
-        addElements(root);
 
-        //Set up Application Screen size  Using Monitor Screen size boundaries
-        setScreenSize(primaryStage);
+        primaryStage.setTitle("Automatic Wounds Detection");
+        addElements(root,primaryStage);
+
+
 
         Scene scene =new Scene(root);
 
@@ -49,15 +64,17 @@ public class Main extends Application {
     Primary Screen
     Arguments: Stage
      */
-    private void setScreenSize(Stage stage){
+    private void setScreenSize(Stage stage ,double prefferedWidth,double preferredHeight){
+        stage.setWidth(prefferedWidth);
+        stage.setHeight(preferredHeight);
         Rectangle2D screenBoundaries = Screen.getPrimary().getVisualBounds();
-
-        stage.setWidth(screenBoundaries.getMaxX()-2*SCREEN_OFFSET);
-        stage.setHeight(screenBoundaries.getMaxY()-SCREEN_OFFSET);
+        stage.setMaxWidth(screenBoundaries.getMaxX()-2*SCREEN_OFFSET);
+        stage.setMaxHeight(screenBoundaries.getMaxY()-SCREEN_OFFSET);
     }
 
-    private void addElements(BorderPane root){
-
+    private void addElements(BorderPane root,Stage stage){
+        double stagePreferredWidth=0;
+        double stagePreferredHeight=0;
         //Menu Bar for Application
         HBox menuBox =new HBox();
         MenuBar menuBar =new MenuBar();
@@ -86,12 +103,78 @@ public class Main extends Application {
         MenuItem aboutMenuItem_1 =new MenuItem("About Us");
         MenuItem aboutMenuItem_2=new MenuItem("Licences");
         MenuItem aboutMenuItem_3=new MenuItem("Help");
+        aboutMenu.getItems().addAll(aboutMenuItem_1,aboutMenuItem_2,aboutMenuItem_3);
 
         menuBar.getMenus().addAll(fileMenu,editMenu,aboutMenu);
-        menuBox.getChildren().add(menuBar);
-        root.setTop(menuBox);
+        //menuBox.getChildren().add(menuBar);
+        root.setTop(menuBar);
 
 
 
+        Image visualImage =new Image("file:C:\\Users\\shank\\Desktop\\index.jpg");
+        Image thermalImage =new Image("file:C:\\Users\\shank\\Desktop\\index.jpg");
+
+        thermalImageHeight=thermalImage.getHeight();
+        thermalImageWidth=thermalImage.getWidth();
+
+        PixelReader px =thermalImage.getPixelReader();
+        regionOfInterestDetector(px);
+
+
+        stagePreferredHeight=(visualImage.getHeight()+thermalImageHeight)/2;
+        stagePreferredWidth=visualImage.getWidth()+thermalImageWidth;
+
+        setScreenSize(stage,stagePreferredWidth+EXTRA_SPACE_HORIZONTAL,stagePreferredHeight+EXTRA_SPACE_VERTICAL);
+
+
+        ImageView visualImageView =new ImageView();
+        visualImageView.setImage(visualImage);
+
+
+        Canvas canvas =new Canvas(thermalImage.getWidth(),thermalImage.getHeight());
+        canvas.getGraphicsContext2D().drawImage(thermalImage,0,0);
+        edgeMarker(canvas.getGraphicsContext2D());
+
+        //Thermal image and visual image container
+        HBox imageBox =new HBox(IMAGE_SPACING);
+        imageBox.prefHeight(stagePreferredHeight);
+        imageBox.getChildren().addAll(visualImageView,canvas);
+
+        ScrollPane scrollPane =new ScrollPane();
+        scrollPane.setPadding(new Insets(30,10,20,30));
+        //scrollPane.setFitToHeight(true);
+        scrollPane.setContent(imageBox);
+        root.setCenter(scrollPane);
+
+        //Tool Box
+        HBox toolBox =new HBox();
+        toolBox.setMinHeight(TOOLBOX_HEIGHT);
+        root.setBottom(toolBox);
+
+        //Status Box
+
+        VBox statusBox =new VBox();
+        statusBox.setMinWidth(160);
+
+        root.setRight(statusBox);
+
+
+
+    }
+
+    private void regionOfInterestDetector(PixelReader px){
+        for(int i=0;i<thermalImageWidth;i++){
+            for(int j=0;j<thermalImageHeight;j++){
+                if(ColorSeparator.compareColors(Color.WHITE,px.getColor(i,j),.3)){
+                    points.add(new Point(i,j));
+                }
+            }
+        }
+    }
+    private void edgeMarker(GraphicsContext graphicsContext){
+        points.forEach(point -> {
+            graphicsContext.setStroke(Color.RED);
+            graphicsContext.strokeOval(point.getX(),point.getY(),.5,.5);
+        });
     }
 }
