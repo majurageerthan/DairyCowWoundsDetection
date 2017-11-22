@@ -117,32 +117,6 @@ public class Main extends Application {
         root.setTop(menuBar);
 
 
-
-       // Image visualImage =new Image("file:C:\\Users\\shank\\Desktop\\index.jpg");
-        //Image thermalImage =new Image("file:C:\\Users\\shank\\Desktop\\index.jpg");
-
-        //thermalImageHeight=thermalImage.getHeight();
-        //thermalImageWidth=thermalImage.getWidth();
-
-        //PixelReader px =thermalImage.getPixelReader();
-        //regionOfInterestDetector(px);
-
-
-        //stagePreferredHeight=(visualImage.getHeight()+thermalImageHeight)/2;
-        //stagePreferredWidth=visualImage.getWidth()+thermalImageWidth;
-
-        //setScreenSize(stage,stagePreferredWidth+EXTRA_SPACE_HORIZONTAL,stagePreferredHeight+EXTRA_SPACE_VERTICAL);
-
-
-        //ImageView visualImageView =new ImageView();
-        //visualImageView.setImage(visualImage);
-
-
-        //Canvas canvas =new Canvas(thermalImage.getWidth(),thermalImage.getHeight());
-        //canvas.getGraphicsContext2D().drawImage(thermalImage,0,0);
-        //edgeMarker(canvas.getGraphicsContext2D());
-
-
         Image file_open_icon =new Image("file:Resources\\open.png");
         GraphicsContext graphicsContext_visual =visualImgCanvas.getGraphicsContext2D();
         GraphicsContext graphicsContext_thermal =thermalImgCanvas.getGraphicsContext2D();
@@ -157,11 +131,11 @@ public class Main extends Application {
         setScreenSize(stage,1200,800);
         //Thermal image and visual image container
         HBox imageBox =new HBox(IMAGE_SPACING);
-        imageBox.prefHeight(1000);
+        //imageBox.prefHeight(1000);
         imageBox.getChildren().addAll(visualImgCanvas,thermalImgCanvas);
 
         ScrollPane scrollPane =new ScrollPane();
-        scrollPane.setPadding(new Insets(30,10,20,30));
+        scrollPane.setPadding(new Insets(20,20,20,20));
         //scrollPane.setFitToHeight(true);
         scrollPane.setContent(imageBox);
         root.setCenter(scrollPane);
@@ -172,31 +146,13 @@ public class Main extends Application {
         root.setBottom(toolBox);
 
         //Status Box
-
         VBox statusBox =new VBox();
         statusBox.setMinWidth(160);
-
         root.setRight(statusBox);
 
-
-
     }
 
-    private void regionOfInterestDetector(PixelReader px){
-        for(int i=0;i<thermalImageWidth;i++){
-            for(int j=0;j<thermalImageHeight;j++){
-                if(ColorSeparator.compareColors(Color.WHITE,px.getColor(i,j),.3)){
-                    points.add(new Point(i,j));
-                }
-            }
-        }
-    }
-    private void edgeMarker(GraphicsContext graphicsContext){
-        points.forEach(point -> {
-            graphicsContext.setStroke(Color.RED);
-            graphicsContext.strokeOval(point.getX(),point.getY(),.5,.5);
-        });
-    }
+
 
     private void handleEvents(Stage stage){
         //Hanling File open

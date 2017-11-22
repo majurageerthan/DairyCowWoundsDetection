@@ -2,12 +2,9 @@ package woundsDetection;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
 import javafx.scene.paint.Color;
-
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentNavigableMap;
+
 
 /*
 This class contains static methods to proceesing color of each pixel in an image
@@ -15,9 +12,9 @@ This class contains static methods to proceesing color of each pixel in an image
  */
 public class ColorSeparator {
     private static  int regionsCount;
-    private final Map<Integer,List<Point>> regions;
+    private ArrayList<Point> points;
     public ColorSeparator(){
-        regions=new HashMap<Integer, List<Point>>();
+        points =new ArrayList<Point>();
 
     }
     static {
@@ -50,59 +47,58 @@ public class ColorSeparator {
     }
 
     protected void regionOfInterestDetector(Image image, Color color, double radius){
-
         for(int i=0;i<image.getWidth();i++){
             for(int j=0;j<image.getHeight();j++){
-
-                if(compareColors(color,image.getPixelReader().getColor(i,j),radius)){
-                    //points.add(new Point(i,j));
-                    if(regions.isEmpty()){
-                        regions.put(regionsCount,new  ArrayList<Point>());
-                        regions.get(regionsCount).add(new Point(i,j));
+                if(compareColors(image.getPixelReader().getColor(i,j),Color.WHITE,radius)){
+                    if(points.isEmpty()){
+                        regionsCount++;
+                        points.add(new Point(i,j,regionsCount));
                     }else{
-                        final int x=i;
-                        final int y=j;
-
-                        //System.out.println(x+" , "+y);
-                        Iterator<Map.Entry<Integer, List<Point>>> it =regions.entrySet().iterator();
-                        while(it.hasNext()){
-                            List<Point> list = it.next().getValue();
-
-                            for(int k=0;i<list.size();k++){
-                                Point point =list.get(k);
-                                if ( pointRegionFinder(point, x, y)) {
-                                    list.add(new Point(x, y));
-                                } else {
-                                    regionsCount++;
-                                    regions.put(regionsCount, new ArrayList<Point>());
-                                    regions.get(regionsCount).add(new Point(x, y));
-                                }
+                        Point point;
+                        int regionNumber;
+                        ListIterator<Point> iterator =points.listIterator();
+                        boolean isInExistingRegion=false;
+                        while(iterator.hasNext()){
+                             point =iterator.next();
+                             regionNumber=pointRegionFinder(point,i,j);
+                            if(regionNumber!=0){
+                                isInExistingRegion=true;
+                                points.add(new Point(i,j,regionNumber));
+                                break;
                             }
-
                         }
-
+                        if(!isInExistingRegion){
+                            System.out.println(regionsCount);
+                            regionsCount++;
+                            points.add(new Point(i,j,regionsCount));
+                        }
                     }
                 }
             }
         }
+
     }
     protected void edgeMarker(GraphicsContext graphicsContext,Color color){
-        regions.forEach((regionsCount,list)->{
-            list.forEach(point -> {
-                graphicsContext.setStroke(color);
-                graphicsContext.strokeOval(point.getX(),point.getY(),.5,.5);
-            });
-        });
+        ListIterator<Point> listIterator =points.listIterator();
+        Point point;
+        while(listIterator.hasNext()){
+            point=listIterator.next();
+            graphicsContext.setStroke(color);
+            graphicsContext.strokeOval(point.getX(),point.getY(),.5,.5);
+        }
+
+
 
     }
-    private boolean pointRegionFinder(Point point,int x,int y){
 
-        if((point.getX()==x-1 && point.getY()==y)|| (point.getX()==x-1 && point.getY()==y-1)||(point.getX()==x && point.getY()==y-1)){
-            System.out.println("true");
-            return true;
+    private int  pointRegionFinder(Point point,int x,int y){
+
+        if((point.getX()==x-1 && point.getY()==y)|| (point.getX()==x-1 && point.getY()==y-1)||(point.getX()==x && point.getY()==y-1)||(point.getX()==x-1 && point.getY()==y+1)){
+
+            return point.getRegionNumber();
         }else{
-            System.out.println("false");
-            return false;
+
+            return 0;
         }
     }
 }

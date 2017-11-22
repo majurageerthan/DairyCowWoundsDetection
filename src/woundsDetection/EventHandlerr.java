@@ -52,21 +52,19 @@ public class EventHandlerr {
                                      }
                                  });
                                  imagingThread.start();
-                                  imagingThread.join();
+                                  //imagingThread.join();
                              }
 
                              stage.setWidth((canvas.getWidth()>image.getWidth())?(stage.getWidth()+image.getWidth()-canvas.getWidth()):(stage.getWidth()+image.getWidth()-canvas.getWidth()));
-                             stage.setHeight((stage.getHeight() >image.getHeight())? stage.getHeight(): image.getHeight() );
-
+                             stage.setHeight((canvas.getHeight() >image.getHeight())? (stage.getHeight()-canvas.getHeight()+image.getHeight()): (image.getHeight() ));
                              canvas.setHeight(image.getHeight());
                              canvas.setWidth(image.getWidth());
+
                              canvas.getGraphicsContext2D().clearRect(0,0,canvas.getWidth(),canvas.getHeight());
                              canvas.getGraphicsContext2D().drawImage(image,0,0);
                          } catch (MalformedURLException e) {
                              e.printStackTrace();
                              System.out.println(e);
-                         } catch (InterruptedException e) {
-                             e.printStackTrace();
                          }
                      }
 
