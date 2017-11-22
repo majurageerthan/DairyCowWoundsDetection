@@ -54,7 +54,8 @@ public class Main extends Application {
 
         Scene scene =new Scene(root);
 
-
+        primaryStage.setX(20);
+        primaryStage.setY(20);
         primaryStage.setScene(scene);
         primaryStage.show();
         //System.out.println(imageBox.toString());
@@ -199,10 +200,8 @@ public class Main extends Application {
 
     private void handleEvents(Stage stage){
         //Hanling File open
-        String visualImagePath=EventHandlerr.openFile("Open Visual Image",visualImgCanvas,new Rectangle2D(150,150,300,300),stage);
-        Image visualImage =new Image("file:"+visualImagePath);
-        visualImgCanvas.getGraphicsContext2D().drawImage(visualImage,10,10);
-        String thermalImagePath =EventHandlerr.openFile("Open Thermal Image",thermalImgCanvas,new Rectangle2D(150,150,300,300),stage);
+        EventHandlerr.openFile("Open Visual Image",visualImgCanvas,new Rectangle2D(150,150,300,300),stage,false);
+        EventHandlerr.openFile("Open Thermal Image",thermalImgCanvas,new Rectangle2D(150,150,300,300),stage,true);
 
     }
 }
