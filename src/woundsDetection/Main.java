@@ -36,6 +36,12 @@ public class Main extends Application {
     private final List<Point> points= new ArrayList<>();
     private double thermalImageHeight=0;
     private double thermalImageWidth=0;
+    protected Canvas thermalImgCanvas,visualImgCanvas;
+
+    public Main(){
+        thermalImgCanvas =new Canvas(400,400);
+        visualImgCanvas  =new Canvas(400,400);
+    }
 
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -43,7 +49,7 @@ public class Main extends Application {
 
         primaryStage.setTitle("Automatic Wounds Detection");
         addElements(root,primaryStage);
-
+        handleEvents(primaryStage);
 
 
         Scene scene =new Scene(root);
@@ -111,34 +117,47 @@ public class Main extends Application {
 
 
 
-        Image visualImage =new Image("file:C:\\Users\\shank\\Desktop\\index.jpg");
-        Image thermalImage =new Image("file:C:\\Users\\shank\\Desktop\\index.jpg");
+       // Image visualImage =new Image("file:C:\\Users\\shank\\Desktop\\index.jpg");
+        //Image thermalImage =new Image("file:C:\\Users\\shank\\Desktop\\index.jpg");
 
-        thermalImageHeight=thermalImage.getHeight();
-        thermalImageWidth=thermalImage.getWidth();
+        //thermalImageHeight=thermalImage.getHeight();
+        //thermalImageWidth=thermalImage.getWidth();
 
-        PixelReader px =thermalImage.getPixelReader();
-        regionOfInterestDetector(px);
-
-
-        stagePreferredHeight=(visualImage.getHeight()+thermalImageHeight)/2;
-        stagePreferredWidth=visualImage.getWidth()+thermalImageWidth;
-
-        setScreenSize(stage,stagePreferredWidth+EXTRA_SPACE_HORIZONTAL,stagePreferredHeight+EXTRA_SPACE_VERTICAL);
+        //PixelReader px =thermalImage.getPixelReader();
+        //regionOfInterestDetector(px);
 
 
-        ImageView visualImageView =new ImageView();
-        visualImageView.setImage(visualImage);
+        //stagePreferredHeight=(visualImage.getHeight()+thermalImageHeight)/2;
+        //stagePreferredWidth=visualImage.getWidth()+thermalImageWidth;
+
+        //setScreenSize(stage,stagePreferredWidth+EXTRA_SPACE_HORIZONTAL,stagePreferredHeight+EXTRA_SPACE_VERTICAL);
 
 
-        Canvas canvas =new Canvas(thermalImage.getWidth(),thermalImage.getHeight());
-        canvas.getGraphicsContext2D().drawImage(thermalImage,0,0);
-        edgeMarker(canvas.getGraphicsContext2D());
+        //ImageView visualImageView =new ImageView();
+        //visualImageView.setImage(visualImage);
 
+
+        //Canvas canvas =new Canvas(thermalImage.getWidth(),thermalImage.getHeight());
+        //canvas.getGraphicsContext2D().drawImage(thermalImage,0,0);
+        //edgeMarker(canvas.getGraphicsContext2D());
+
+
+        Image file_open_icon =new Image("file:Resources\\open.png");
+        GraphicsContext graphicsContext_visual =visualImgCanvas.getGraphicsContext2D();
+        GraphicsContext graphicsContext_thermal =thermalImgCanvas.getGraphicsContext2D();
+
+        graphicsContext_thermal.drawImage(file_open_icon,140,140);
+        graphicsContext_visual.drawImage(file_open_icon,140,140);
+        graphicsContext_thermal.fillText("Open Thermal Image\n",180,145);
+        graphicsContext_visual.fillText("Open Visual Image \n",180,145);
+
+
+
+        setScreenSize(stage,1200,800);
         //Thermal image and visual image container
         HBox imageBox =new HBox(IMAGE_SPACING);
-        imageBox.prefHeight(stagePreferredHeight);
-        imageBox.getChildren().addAll(visualImageView,canvas);
+        imageBox.prefHeight(1000);
+        imageBox.getChildren().addAll(visualImgCanvas,thermalImgCanvas);
 
         ScrollPane scrollPane =new ScrollPane();
         scrollPane.setPadding(new Insets(30,10,20,30));
@@ -176,5 +195,14 @@ public class Main extends Application {
             graphicsContext.setStroke(Color.RED);
             graphicsContext.strokeOval(point.getX(),point.getY(),.5,.5);
         });
+    }
+
+    private void handleEvents(Stage stage){
+        //Hanling File open
+        String visualImagePath=EventHandlerr.openFile("Open Visual Image",visualImgCanvas,new Rectangle2D(150,150,300,300),stage);
+        Image visualImage =new Image("file:"+visualImagePath);
+        visualImgCanvas.getGraphicsContext2D().drawImage(visualImage,10,10);
+        String thermalImagePath =EventHandlerr.openFile("Open Thermal Image",thermalImgCanvas,new Rectangle2D(150,150,300,300),stage);
+
     }
 }
