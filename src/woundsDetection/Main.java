@@ -74,8 +74,8 @@ public class Main extends Application {
         stage.setWidth(prefferedWidth);
         stage.setHeight(preferredHeight);
         Rectangle2D screenBoundaries = Screen.getPrimary().getVisualBounds();
-        stage.setMaxWidth(screenBoundaries.getMaxX()-2*SCREEN_OFFSET);
-        stage.setMaxHeight(screenBoundaries.getMaxY()-SCREEN_OFFSET);
+     ////fd   stage.setMaxWidth(screenBoundaries.getMaxX()-2*SCREEN_OFFSET);
+       // stage.setMaxHeight(screenBoundaries.getMaxY()-SCREEN_OFFSET);
     }
 
     private void addElements(BorderPane root,Stage stage){
